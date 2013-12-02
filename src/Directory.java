@@ -6,18 +6,26 @@ public class Directory {
       private char fnames[][];    // each element stores a different file name.
 
       public Directory( int maxInumber ) { // directory constructor
-         fsizes = new int[maxInumber];     // maxInumber = max files
+         fsize = new int[maxInumber];     // maxInumber = max files
          for ( int i = 0; i < maxInumber; i++ ) 
              fsize[i] = 0;                 // all file size initialized to 0
          fnames = new char[maxInumber][maxChars];
          String root = "/";                // entry(inode) 0 is "/"
          fsize[0] = root.length( );        // fsize[0] is the size of "/".
-         root.getChars( 0, fsizes[0], fnames[0], 0 ); // fnames[0] includes "/"
+         root.getChars( 0, fsize[0], fnames[0], 0 ); // fnames[0] includes "/"
       }
 
-      public int bytes2directory( byte data[] ) {
+      public void bytes2directory( byte data[] ) {
          // assumes data[] received directory information from disk
          // initializes the Directory instance with this data[]
+    	  int offset = 0;
+    	  for(int i = 0; i < fsize.length;i++, offset += 4){
+    		  fsize[i] = SysLib.bytes2int(data, offset);
+    	  }
+    	  
+    	  for(int i = 0; i < fnames.length; i++, offset += maxChars * 2){
+    		  String fname = new String(data, offset, maxChars * 2);
+    	  }
       }
 
       public byte[] directory2bytes( ) {

@@ -19,9 +19,42 @@
 
       Inode( short iNumber ) {                       // retrieving inode from disk
          // design it by yourself.
+    	  int blockNumber = 1 + iNumber / 16;
+    	  byte[] data = new byte[Disk.blockSize];
+    	  SysLib.rawread(blockNumber, data);
+    	  int offset = (iNumber % 16) * iNodeSize;
+    	  
+    	  length = SysLib.bytes2int(data, offset);
+    	  offset += 4;
+    	  count = SysLib.bytes2short(data, offset);
+    	  offset += 2;
+    	  flag = SysLib.bytes2short(data, offset);
+    	  offset += 2;
+    	  
+    	  for(int i = 0; i < directSize; i++){
+    		  direct[i] = SysLib.bytes2short(data, offset);
+    		  offset += 2;
+    	  }
+    	  indirect = SysLib.bytes2short(data, offset);
       }
 
       int toDisk( short iNumber ) {                  // save to disk as the i-th inode
          // design it by yourself.
+      }
+      
+      int findIndexBlock(){
+    	  
+      }
+      
+      boolean registerIndexBlock( short indexBlockNumber){
+    	  
+      }
+      
+      int findTargetBlock(int offset, short targetBlockNumber){
+    	  
+      }
+      
+      byte[] unregisterIndexBlock(){
+    	  
       }
    }
