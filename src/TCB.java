@@ -5,12 +5,14 @@ public class TCB {
     private boolean terminated = false;
     private int sleepTime = 0;
     public FileTableEntry[] ftEnt = null; // added for the file system
+    private int seek;
 
     public TCB( Thread newThread, int myTid, int parentTid ) {
 	thread = newThread;
 	tid = myTid;
 	pid = parentTid;
 	terminated = false;
+	seek = 0;
 
 	ftEnt = new FileTableEntry[32];    // added for the file system
 

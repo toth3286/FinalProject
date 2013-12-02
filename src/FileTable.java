@@ -26,7 +26,7 @@ public class FileTable {
       		if(iNumber >= 0){
       			inode = new Inode(iNumber);
       			if(mode.equalsIgnoreCase("r")){
-      				if(inode.flag is "read") break;
+      				if(inode.flag == "read") break;
       				else if(inode.flag is "write")
       					try{wait(); } catch(InterruptedException e){
       						
