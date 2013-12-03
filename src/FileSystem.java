@@ -41,7 +41,15 @@ public class FileSystem {
 	}
 	
 	int seek(int fd, int offset, int whence){
-		
+		if(whence < 1){
+			
+		}else if(whence == 1){
+			
+		}else if(whence == 2){
+			
+		}else{
+			
+		}
 	}
 	
 	int close(int fd){

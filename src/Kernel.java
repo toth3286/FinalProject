@@ -187,19 +187,38 @@ public class Kernel
 	    		FileTableEntry ent = fs.open(s[0], s[1]);
 	    		int fd = myTcb.getFd(ent);
 	    		return fd;
-	    	}else
-	    		return ERROR;
 	    	}
+	    	return ERROR;
+	    	
 	    case CLOSE:   // to be implemented in project
-		return OK;
+	    	if((myTcb = scheduler.getMyTcb()) != null ){
+	    		String[] s = (String[])args;
+	    	}
+	    	return ERROR;
+	    	
 	    case SIZE:    // to be implemented in project
-		return OK;
+	    	if((myTcb = scheduler.getMyTcb()) != null ){
+	    		String[] s = (String[])args;
+	    	}
+	    	return ERROR;
+	    	
 	    case SEEK:    // to be implemented in project
-		return OK;
+	    	if((myTcb = scheduler.getMyTcb()) != null ){
+	    		String[] s = (String[])args;
+	    	}
+	    	return ERROR;
+	    	
 	    case FORMAT:  // to be implemented in project
-		return OK;
+	    	if((myTcb = scheduler.getMyTcb()) != null ){
+	    		String[] s = (String[])args;
+	    	}
+	    	return ERROR;
+	    	
 	    case DELETE:  // to be implemented in project
-		return OK;
+	    	if((myTcb = scheduler.getMyTcb()) != null ){
+	    		String[] s = (String[])args;
+	    	}
+	    	return ERROR;
 	    }
 	    return ERROR;
 	case INTERRUPT_DISK: // Disk interrupts
@@ -212,7 +231,7 @@ public class Kernel
 	    return OK;
 	case INTERRUPT_IO:   // other I/O interrupts (not implemented)
 	    return OK;
-	}
+	
 	return OK;
     }
 
