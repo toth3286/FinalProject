@@ -5,10 +5,10 @@
 
 
 class SuperBlock {
-	   private final int defaultInodeBlocks = 64;
-      public int totalBlocks; 													// the number of disk blocks
-      public int totalInodes; 													// the number of inodes
-      public int freeList;    													// the block number of the free list's head
+	  private final int defaultInodeBlocks = 64;
+      public int totalBlocks; 													//The number of disk blocks
+      public int totalInodes; 													//The number of inodes
+      public int freeList;    													//The block number of the free list's head
       
       public SuperBlock(int diskSize){										    //Constructor for superblock, takes in disk Size
     	  byte[] superBlock = new byte[Disk.blockSize];							//Buffer

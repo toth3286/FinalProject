@@ -80,7 +80,47 @@ public class SysLib {
         return Kernel.interrupt( Kernel.INTERRUPT_SOFTWARE,
 				 Kernel.CSYNC, 0, null );
     }
-
+///////////////////////////////////////////////////////////////////////////////////////////////    
+    public static int format( ) {
+        return Kernel.interrupt( Kernel.INTERRUPT_SOFTWARE,
+				 Kernel.FORMAT, 0, null );
+    }
+    
+    public static int open( ) {
+        return Kernel.interrupt( Kernel.INTERRUPT_SOFTWARE,
+				 Kernel.OPEN, 0, null );
+    }
+    
+    public static int close( ) {
+        return Kernel.interrupt( Kernel.INTERRUPT_SOFTWARE,
+				 Kernel.CLOSE, 0, null );
+    }
+    
+    public static int read( ) {
+        return Kernel.interrupt( Kernel.INTERRUPT_SOFTWARE,
+				 Kernel.READ, 0, null );
+    }
+    
+    public static int write( ) {
+        return Kernel.interrupt( Kernel.INTERRUPT_SOFTWARE,
+				 Kernel.WRITE, 0, null );
+    }
+    
+    public static int seek( ) {
+        return Kernel.interrupt( Kernel.INTERRUPT_SOFTWARE,
+				 Kernel.SEEK, 0, null );
+    }
+    
+    public static int delete( ) {
+        return Kernel.interrupt( Kernel.INTERRUPT_SOFTWARE,
+				 Kernel.DELETE, 0, null );
+    }
+    
+    public static int fsize( ) {
+        return Kernel.interrupt( Kernel.INTERRUPT_SOFTWARE,
+				 Kernel.SIZE, 0, null );
+    }
+/////////////////////////////////////////////////////////////////////////////////////////
     public static String[] stringToArgs( String s ) {
 	StringTokenizer token = new StringTokenizer( s," " );
 	String[] progArgs = new String[ token.countTokens( ) ];
