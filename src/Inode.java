@@ -8,7 +8,7 @@
       public short direct[] = new short[directSize]; // direct pointers
       public short indirect;                         // a indirect pointer
 
-      Inode( ) {                                     // a default constructor
+      public Inode( ) {                                     // a default constructor
          length = 0;
          count = 0;
          flag = 1;
@@ -17,7 +17,7 @@
          indirect = -1;
       }
 
-      Inode( short iNumber ) {                       // retrieving inode from disk
+      public Inode( short iNumber ) {                       // retrieving inode from disk
          // design it by yourself.
     	  int blockNumber = 1 + iNumber / 16;
     	  byte[] data = new byte[Disk.blockSize];
@@ -43,22 +43,44 @@
     	  byte[] data = new byte[Disk.blockSize];
     	  SysLib.rawread(blockNumber, data);
     	  int offset = (iNumber % 16) * iNodeSize;
+    	  SysLib.int2bytes(length, data, offset);
+    	  offset += 4;
+    	  SysLib.short2bytes(count, data, offset);
+    	  offset += 2;
+    	  SysLib.short2bytes(flag, data, offset);
+    	  offset += 2;
+    	  
+    	  for (int i = 0; i < directSize; i++) {
+    		  SysLib.short2bytes(direct[i], data, offset);
+    		  offset += 2;
+    	  }
+    	  SysLib.short2bytes(indirect, data, offset);
+    	  
     	  return iNodeSize;
       }
       
-      int findIndexBlock(){
-    	  
+      public int findTargetBlock(int seekptr){
+    	  if (seekptr >= length)
+    		  return -1;
+    	  int ptr = seekptr/Disk.blockSize;
+    	  if (ptr < 11)
+    		  return direct[ptr];
+    	  else {
+    		  ptr -= 11;
+    		  short[] ptrs = getIndirectBlock();
+    		  return ptrs[ptr];
+    	  }
       }
       
-      boolean registerIndexBlock( short indexBlockNumber){
-    	  
+      private short[] getIndirectBlock() {
+    	  byte[] data = new byte[Disk.blockSize];
+    	  SysLib.rawread(indirect, data);
+    	  short[] ptrs = new short[Disk.blockSize/2];
+    	  for (int i = 0; i < ptrs.length; i+=2) {
+    		  ptrs[i] = SysLib.bytes2short(data, i);
+    	  }
+    	  return ptrs;
       }
       
-      int findTargetBlock(int offset, short targetBlockNumber){
-    	  
-      }
       
-      byte[] unregisterIndexBlock(){
-    	  
-      }
    }
