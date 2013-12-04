@@ -205,6 +205,9 @@ public class Kernel
 	    case SEEK:    // to be implemented in project
 	    	if((myTcb = scheduler.getMyTcb()) != null ){
 	    		String[] s = (String[])args;
+	    		FileTableEntry fte = myTcb.getFtEnt(Integer.parseInt(s[0]));
+	    		fs.seek(fte, Integer.parseInt(s[1]), Integer.parseInt(s[2]));
+	    		return OK;
 	    	}
 	    	return ERROR;
 	    	

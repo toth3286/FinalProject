@@ -39,7 +39,11 @@
       }
 
       int toDisk( short iNumber ) {                  // save to disk as the i-th inode
-         // design it by yourself.
+    	  int blockNumber = 1 + iNumber / 16;
+    	  byte[] data = new byte[Disk.blockSize];
+    	  SysLib.rawread(blockNumber, data);
+    	  int offset = (iNumber % 16) * iNodeSize;
+    	  return iNodeSize;
       }
       
       int findIndexBlock(){
