@@ -1,30 +1,44 @@
+import java.util.Map;
+import java.util.HashMap;
+
 public class Directory {
       private static int maxChars = 30; // max characters of each file name
 
       // Directory entries
-      private int fsize[];        // each element stores a different file size.
-      private char fnames[][];    // each element stores a different file name.
-
+      private byte hasName[];        // each element represents if index(inode) is associated with a file
+      private String[] names;    // each element stores a different file name.
+      private Map<String, Integer> namesMap = new HashMap<String,Integer>();
+      
       public Directory( int maxInumber ) { // directory constructor
-         fsize = new int[maxInumber];     // maxInumber = max files
-         for ( int i = 0; i < maxInumber; i++ ) 
-             fsize[i] = 0;                 // all file size initialized to 0
-         fnames = new char[maxInumber][maxChars];
-         String root = "/";                // entry(inode) 0 is "/"
-         fsize[0] = root.length( );        // fsize[0] is the size of "/".
-         root.getChars( 0, fsize[0], fnames[0], 0 ); // fnames[0] includes "/"
+         hasName = new byte[maxInumber];     // maxInumber = max files
+         names = new String[maxInumber];
+         names[0] = "/";
+         hasName[0] = 1;
+         namesMap.put(names[0], 0);
       }
 
       public void bytes2directory( byte data[] ) {
          // assumes data[] received directory information from disk
          // initializes the Directory instance with this data[]
     	  int offset = 0;
-    	  for(int i = 0; i < fsize.length;i++, offset += 4){
-    		  fsize[i] = SysLib.bytes2int(data, offset);
+    	  for(int i = 0; i < hasName.length;i++, offset ++){
+    		  hasName[i] = data[i];
     	  }
     	  
-    	  for(int i = 0; i < fnames.length; i++, offset += maxChars * 2){
-    		  String fname = new String(data, offset, maxChars * 2);
+    	  for(int i = 0; i < names.length; i++){
+    		  if (hasName[i] == 1) {
+    			  char[] buffer = new char[maxChars];
+    			  int j = 0;
+    			  short cur = SysLib.bytes2short(data, offset);
+    			  while (cur != 0) {
+    				  buffer[j] = (char)cur;
+    				  offset+=2;
+    				  j++;
+    				  cur = SysLib.bytes2short(data, offset);
+    			  }
+    			  offset+=2;
+    			  names[i] = new String(buffer,0,j);
+    		  }
     	  }
       }
 

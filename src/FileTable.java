@@ -2,11 +2,11 @@ import java.util.Vector;
 
 public class FileTable {
 
-      private Vector table;         // the actual entity of this file table
+      private Vector<FileTableEntry> table;         // the actual entity of this file table
       private Directory dir;        // the root directory 
 
       public FileTable( Directory directory ) { // constructor
-         table = new Vector( );     // instantiate a file (structure) table
+         table = new Vector<FileTableEntry>( );     // instantiate a file (structure) table
          dir = directory;           // receive a reference to the Director
       }                             // from the file system
 
@@ -25,17 +25,15 @@ public class FileTable {
       		iNumber = fname.equals("/") ? 0 : dir.namei(fname);
       		if(iNumber >= 0){
       			inode = new Inode(iNumber);
-      			if(mode.equalsIgnoreCase("r")){
-      				if(inode.flag == "read") break;
-      				else if(inode.flag is "write")
-      					try{wait(); } catch(InterruptedException e){
-      						
-      					}
-      				else if(inode.flag is "to be deleted"){
-      					iNumber = -1;
-      					return null;
-      				}
-      			}else if(mode.equalsIgnoreCase("w")){
+      			if(mode.compareTo("r") == 0){
+      				
+      			} else if(mode.compareTo("w") == 0){
+      				
+      			} else if (mode.compareTo("w+") == 0) {
+      				
+      			} else if (mode.compareTo("a") == 0) {
+      				
+      			} else {
       				
       			}
       		}
