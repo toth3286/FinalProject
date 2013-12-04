@@ -81,44 +81,44 @@ public class SysLib {
 				 Kernel.CSYNC, 0, null );
     }
 ///////////////////////////////////////////////////////////////////////////////////////////////    
-    public static int format( ) {
+    public static int format( int files ) {
         return Kernel.interrupt( Kernel.INTERRUPT_SOFTWARE,
-				 Kernel.FORMAT, 0, null );
+				 Kernel.FORMAT, 0, files );
     }
     
-    public static int open( ) {
+    public static int open( String fileName, String mode) {
         return Kernel.interrupt( Kernel.INTERRUPT_SOFTWARE,
-				 Kernel.OPEN, 0, null );
+				 Kernel.OPEN, 0, new String[]{fileName, mode} );
     }
     
-    public static int close( ) {
+    public static int close( int fd) {
         return Kernel.interrupt( Kernel.INTERRUPT_SOFTWARE,
-				 Kernel.CLOSE, 0, null );
+				 Kernel.CLOSE, fd, null );
     }
     
-    public static int read( ) {
+    public static int read( int fd, byte[]buffer ) {
         return Kernel.interrupt( Kernel.INTERRUPT_SOFTWARE,
-				 Kernel.READ, 0, null );
+				 Kernel.READ, fd, buffer );
     }
     
-    public static int write( ) {
+    public static int write( int fd, byte[] buffer) {
         return Kernel.interrupt( Kernel.INTERRUPT_SOFTWARE,
-				 Kernel.WRITE, 0, null );
+				 Kernel.WRITE, fd, buffer );
     }
     
-    public static int seek( ) {
+    public static int seek(int fd, int offset, int whence) {
         return Kernel.interrupt( Kernel.INTERRUPT_SOFTWARE,
-				 Kernel.SEEK, 0, null );
+				 Kernel.SEEK, 0, new int[]{fd, offset, whence} );
     }
     
-    public static int delete( ) {
+    public static int delete( String fileName) {
         return Kernel.interrupt( Kernel.INTERRUPT_SOFTWARE,
-				 Kernel.DELETE, 0, null );
+				 Kernel.DELETE, 0, fileName );
     }
     
-    public static int fsize( ) {
+    public static int fsize( int fd ) {
         return Kernel.interrupt( Kernel.INTERRUPT_SOFTWARE,
-				 Kernel.SIZE, 0, null );
+				 Kernel.SIZE, fd, null );
     }
 /////////////////////////////////////////////////////////////////////////////////////////
     public static String[] stringToArgs( String s ) {

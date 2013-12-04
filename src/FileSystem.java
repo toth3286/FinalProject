@@ -38,15 +38,15 @@ public class FileSystem {
 		return ftEnt;
 	}
 	
-	public int read(int fd, byte buffer[]){
+	public synchronized int read(int fd, byte buffer[]){
 		
 	}
 	
-	public int write(int fd, byte buffer[]){
+	public synchronized int write(int fd, byte buffer[]){
 		
 	}
 	
-	int seek(FileTableEntry fd, int offset, int whence){
+	public synchronized int seek(FileTableEntry fd, int offset, int whence){
 		if(whence < 1){
 //			fd.seekPtr
 		}else if(whence == 1){
@@ -58,11 +58,11 @@ public class FileSystem {
 		}
 	}
 	
-	int close(int fd){
+	public synchronized int close(int fd){
 		
 	}
 	
-	int delete(String fileName){
+	public synchronized int delete(String fileName){
 		
 	}
 	
