@@ -1,3 +1,8 @@
+/*	Jay Hennen & Chris Rouse
+ * 	SuperBlock.java
+ * 	CSS 430 ~ Professor Fukuda
+ */
+
 import java.util.Vector;
 
 public class FileTable {

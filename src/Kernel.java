@@ -1,4 +1,7 @@
-//Chris and Jay
+/*	Jay Hennen & Chris Rouse
+ * 	SuperBlock.java
+ * 	CSS 430 ~ Professor Fukuda
+ */
 
 import java.util.*;
 import java.lang.reflect.*;

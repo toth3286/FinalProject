@@ -1,4 +1,8 @@
-  public class Inode {
+  /*	Jay Hennen & Chris Rouse
+ * 	SuperBlock.java
+ * 	CSS 430 ~ Professor Fukuda
+ */
+public class Inode {
       private final static int iNodeSize = 32;       				// fix to 32 bytes
       private final static int directSize = 11;      				// # direct pointers
 

@@ -1,3 +1,8 @@
+/*	Jay Hennen & Chris Rouse
+ * 	SuperBlock.java
+ * 	CSS 430 ~ Professor Fukuda
+ */
+
 import java.util.Arrays;
 import java.util.Map;
 import java.util.HashMap;

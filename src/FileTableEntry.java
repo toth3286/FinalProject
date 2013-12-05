@@ -1,3 +1,8 @@
+/*	Jay Hennen & Chris Rouse
+ * 	SuperBlock.java
+ * 	CSS 430 ~ Professor Fukuda
+ */
+
 public class FileTableEntry {  // Each table entry should have
     public int seekPtr;        //    a file seek pointer
     public Inode inode;  //    a reference to an inode
