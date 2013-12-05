@@ -189,10 +189,13 @@ public class Kernel
 	    		String[] s = (String[])args;
 	    		FileTableEntry ent = fs.open(s[0], s[1]);
 	    		int fd = myTcb.getFd(ent);
+	    		if (fd == -1) {
+	    			fs.close(ent);
+	    		}
 	    		return fd;
 	    	}
 	    	return ERROR;
-	    	
+
 	    case CLOSE:   // to be implemented in project
 	    	if((myTcb = scheduler.getMyTcb()) != null ){
 	    		String[] s = (String[])args;
@@ -201,7 +204,9 @@ public class Kernel
 	    	
 	    case SIZE:    // to be implemented in project
 	    	if((myTcb = scheduler.getMyTcb()) != null ){
-	    		String[] s = (String[])args;
+	    		int fd = param;
+	    		int size = fs.fsize(fd, myTcb);
+	    		return size;
 	    	}
 	    	return ERROR;
 	    	

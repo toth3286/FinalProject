@@ -15,7 +15,7 @@ public class Inode {
       public Inode( ) {                                     		// a default constructor
          length = 0;												//Set all values to their default values
          count = 0;
-         flag = 1;													//Set the flag to -1 to indicate its initial state
+         flag = -1;													//Set the flag to -1 to indicate its initial state
          for ( int i = 0; i < directSize; i++ )						//Set all pointers default to -1 to indicate null
             direct[i] = -1;
          indirect = -1;												//set the indirect value to -1 for null
@@ -60,6 +60,7 @@ public class Inode {
     	  }
     	  SysLib.short2bytes(indirect, data, offset);				//Set indirect pointer
     	  
+    	  SysLib.rawwrite(blockNumber, data);
     	  return iNodeSize;
       }
       

@@ -100,6 +100,10 @@ public class Directory {
 
       public short namei( String filename ) {
     	  // returns the inumber corresponding to this filename
-    	  return (short)namesMap.get(filename).intValue();
+    	  Integer retVal = namesMap.get(filename);
+    	  if (retVal != null)
+    		  return (short)retVal.intValue();
+    	  else
+    		  return -1;
       }
    }
