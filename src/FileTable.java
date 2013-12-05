@@ -26,13 +26,36 @@ public class FileTable {
       		if(iNumber >= 0){
       			inode = new Inode(iNumber);
       			if(mode.compareTo("r") == 0){
-      				
+      				if (inode.flag != 0) {
+      					try {
+							wait();
+						} catch (InterruptedException e) { }
+      					break;
+      				}
       			} else if(mode.compareTo("w") == 0){
-      				
+      				if (inode.flag != 0) {
+      					try {
+      						wait();
+      					} catch (InterruptedException e) { }
+      					inode.flag=1;
+      					break;
+      				}
       			} else if (mode.compareTo("w+") == 0) {
-      				
+      				if (inode.flag != 0) {
+      					try {
+      						wait();
+      					} catch (InterruptedException e) { }
+      					inode.flag=1;
+      					break;
+      				}
       			} else if (mode.compareTo("a") == 0) {
-      				
+      				if (inode.flag != 0) {
+      					try {
+      						wait();
+      					} catch (InterruptedException e) { }
+      					break;
+      					inode.flag=1;
+      				}
       			} else {
       				
       			}
@@ -41,6 +64,9 @@ public class FileTable {
       	inode.count++;
       	inode.toDisk(iNumber);
       	FileTableEntry e = new FileTableEntry(inode, iNumber, mode);
+      	if (mode.equals("a")) {
+      		e.seekPtr = inode.length;
+      	}
       	table.addElement(e);
       	return e;
       }
@@ -50,9 +76,15 @@ public class FileTable {
          // save the corresponding inode to the disk
          // free this file table entry.
          // return true if this file table entry found in my table
+    	  if (table.contains(e)) {
+    		  e.inode.toDisk(e.iNumber);
+    		  table.remove(e);
+    		  return true;
+    	  } else {
+    		  return false;
+    	  }
       }
 
       public synchronized boolean fempty( ) {
          return table.isEmpty( );  // return if table is empty 
-      }                            // should be called before starting a format
-   }
+      }                            // should be called before starting a format   }
