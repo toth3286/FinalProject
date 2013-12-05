@@ -79,7 +79,7 @@
     	  for (int i = 0; i < ptrs.length; i+=2) {					//Load the pointers
     		  ptrs[i] = SysLib.bytes2short(data, i);
     	  }
-    	  return ptrs;												//Return the list of indirect pointers
+    	  return ptrs;
       }
       
       
