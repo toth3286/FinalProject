@@ -7,6 +7,7 @@ public class FileSystem {
 	private SuperBlock superblock;
 	private Directory directory;
 	private FileTable filetable;
+	private int blocksize = 512;
 
 	public FileSystem(int diskBlocks){							//Constructor
 		this.diskBlocks = diskBlocks;							//Set this diskblocks to the parameter's value
@@ -18,7 +19,7 @@ public class FileSystem {
 		int dirSize = SysLib.fsize(dirEnt);							//the directory size is set to the filesize of the directory entry
 		if(dirSize > 0){										//If the size is greater than zero
 			byte[] dirData = new byte[dirSize];					//Create a buffer
-			read(dirEnt, dirData);								//Read the data
+			SysLib.read(dirEnt, dirData);								//Read the data
 			directory.bytes2directory(dirData);					//read in the directory
 		}
 		SysLib.close(dirEnt);											//Close the directory entry
@@ -41,6 +42,7 @@ public class FileSystem {
 		} else {															//File does not exist
 			if(mode.compareTo("w") == 0 || mode.compareTo("w+") == 0){
 				
+				deallocateAllBlocks(inode);
 			}else if(mode.compareTo("r") == 0){
 				
 			}else if(mode.compareTo("a") == 0){
@@ -52,11 +54,51 @@ public class FileSystem {
 		return ftEnt;														//Otherwise retutn the filetableentry
 	}
 	
-	public synchronized int read(int fd, byte buffer[]){
+	public synchronized int read(FileTableEntry f, byte[] buffer){
+		int bRead = 0;
+		int filelength = f.inode.length;
+		int bufflength = buffer.length;
 		
+		while(bufflength > 0){
+			int blk = f.inode.findTargetBlock(f.seekPtr);
+			byte[] newblk = new byte[blocksize];
+			
+			SysLib.rawread(blk, newblk);
+			int tmpptr = f.seekPtr % blocksize;
+			int leftToRead = blocksize - tmpptr;
+			int fileresidual = filelength - f.seekPtr;
+			
+			if(bufflength > leftToRead){
+				
+				if(fileresidual > leftToRead){
+					System.arraycopy(newblk, tmpptr, buffer, bRead, leftToRead);
+					bRead += leftToRead;
+					f.seekPtr += leftToRead;
+					bufflength -= leftToRead;
+				}else{
+					System.arraycopy(newblk, tmpptr, buffer, bRead, fileresidual);
+					bRead += fileresidual;
+					f.seekPtr += fileresidual;
+					bufflength -= bufflength;
+				}
+			}else{
+				if(fileresidual > bufflength){
+					System.arraycopy(newblk, tmpptr, buffer, bRead, bufflength);
+					f.seekPtr += bufflength;
+					bRead += bufflength;
+					bufflength -= bufflength;
+				}else{
+					System.arraycopy(newblk, tmpptr, buffer, bRead, fileresidual);
+					f.seekPtr += fileresidual;
+					bRead += fileresidual;
+					bufflength -= bufflength;
+				}
+			}
+		}
+		return bRead;
 	}
 	
-	public synchronized int write(int fd, byte buffer[]){
+	public synchronized int write(FileTableEntry f, byte[] buffer){
 		
 	}
 	
@@ -84,8 +126,13 @@ public class FileSystem {
 		return 0;
 	}
 	
-	public synchronized int delete(String fileName){			//Delete the filename specified. Waits for transactions to finish first
-																//New transactions will not be allowed while waiting to delete
+	public synchronized int delete(String filename){			//Delete the filename specified. Waits for transactions to finish first
+		FileTableEntry f = open(filename, "w");
+		f.inode.toDisk(f.iNumber);
+		boolean retVal = directory.ifree(f.iNumber);
+		close(f);
+		return 0;
+		//New transactions will not be allowed while waiting to delete
 	}
 	
 	public int fsize(int fd, TCB curr){							//Returns the size (in bytes) of the fd given
@@ -93,7 +140,12 @@ public class FileSystem {
 	}
 	
 	void sync(){
-
+		FileTableEntry f = open("/", "w");
+		byte[] b = directory.directory2bytes();
+		write(f,b);
+		close(f);
+		superblock.sync();
+		return;
 	}
 	
 	private void deallocateAllBlocks(Inode inode){				//Remove all blocks and reset the Inode
