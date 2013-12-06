@@ -13,7 +13,7 @@ public class FileSystem {
 		this.diskBlocks = diskBlocks;							//Set this diskblocks to the parameter's value
 		superblock = new SuperBlock(diskBlocks);				//Create a new Superblock
 		directory = new Directory(superblock.totalInodes);		//Create a new directory with totalInodes's worth of values
-		filetable = new FileTable(directory);					//Create a new Filetable and include the directory in it
+		filetable = new FileTable(directory, superblock.totalInodes);					//Create a new Filetable and include the directory in it
 		
 		int dirEnt = SysLib.open("/","r");								//Open the file related to the root with read flagged
 		int dirSize = SysLib.fsize(dirEnt);							//the directory size is set to the filesize of the directory entry
@@ -33,28 +33,26 @@ public class FileSystem {
 		return 0;
 	}
 	
-	public FileTableEntry open(String fileName, String mode){				//Used to open a file
-		short inode = directory.namei(fileName.substring(1));
+	public synchronized FileTableEntry open(String fileName, String mode){				//Used to open a file
+		assert(!fileName.equals("/"));
+		short inode = directory.namei(fileName);
 		FileTableEntry ftEnt;
-		if (inode > -1) { 													// file exists
-			ftEnt = filetable.falloc(fileName, mode);						//Allocate a new file table entry with the name and the mode
-			return ftEnt;
-		} else {															//File does not exist
-			if(mode.compareTo("w") == 0 || mode.compareTo("w+") == 0){
-				
-				deallocateAllBlocks(inode);
-			}else if(mode.compareTo("r") == 0){
-				
-			}else if(mode.compareTo("a") == 0){
-				
-			}else{
-				
-			}
+		if (inode > -1) 							// file exist
+			directory.ialloc(fileName);
+		ftEnt = filetable.falloc(fileName, mode);						//Allocate a new file table entry with the name and the mode
+
+		if(mode.compareTo("w") == 0 || mode.compareTo("w+") == 0){
+			deallocateAllBlocks(ftEnt.inode);
+		}else if(mode.compareTo("a") == 0){
+			ftEnt.seekPtr = ftEnt.inode.length;
+		}else{
+			throw new IllegalArgumentException();
 		}
 		return ftEnt;														//Otherwise retutn the filetableentry
 	}
 	
-	public synchronized int read(FileTableEntry f, byte[] buffer){
+	public int read(FileTableEntry f, byte[] buffer){
+		synchronized(f.inode) {
 		int bRead = 0;
 		int filelength = f.inode.length;
 		int bufflength = buffer.length;
@@ -96,10 +94,11 @@ public class FileSystem {
 			}
 		}
 		return bRead;
+		}
 	}
 	
 	public synchronized int write(FileTableEntry f, byte[] buffer){
-		
+		return 0;
 	}
 	
 	public synchronized int seek(FileTableEntry fd, int offset, int whence){
@@ -129,7 +128,7 @@ public class FileSystem {
 	public synchronized int delete(String filename){			//Delete the filename specified. Waits for transactions to finish first
 		FileTableEntry f = open(filename, "w");
 		f.inode.toDisk(f.iNumber);
-		boolean retVal = directory.ifree(f.iNumber);
+		directory.ifree(f.iNumber);
 		close(f);
 		return 0;
 		//New transactions will not be allowed while waiting to delete

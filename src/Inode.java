@@ -21,6 +21,10 @@ public class Inode {
          indirect = -1;												//set the indirect value to -1 for null
       }
 
+      /**
+       * Reads an Inode from disk and populates fields
+       * @param iNumber - inode number to be read
+       */
       public Inode( short iNumber ) {                       		//retrieving inode from disk
 
     	  int blockNumber = 1 + iNumber / 16;						//set the block number, divisible by 16. Add 1 to keep out of superblock
@@ -64,6 +68,11 @@ public class Inode {
     	  return iNodeSize;
       }
       
+      /**
+       * 
+       * @param seekptr
+       * @return
+       */
       public int findTargetBlock(int seekptr){						//Used to find a target block
     	  if (seekptr >= length)									//If the seeker is greater or equal to length, return false
     		  return -1;

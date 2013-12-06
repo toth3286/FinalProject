@@ -88,7 +88,7 @@ public class SysLib {
 ///////////////////////////////////////////////////////////////////////////////////////////////    
     public static int format( int files ) {
         return Kernel.interrupt( Kernel.INTERRUPT_SOFTWARE,
-				 Kernel.FORMAT, 0, files );
+				 Kernel.FORMAT, files, null );
     }
     
     public static int open( String fileName, String mode) {

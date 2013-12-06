@@ -159,7 +159,11 @@ public class Kernel
 		    System.out.println( "threaOS: caused read errors" );
 		    return ERROR;
 		}
-		// return FileSystem.read( param, byte args[] );
+		if (param > 31 || param < 3)
+			return ERROR;
+		FileTableEntry fte = myTcb.getFtEnt(param);
+		return fs.read( fte, (byte[])args );
+		
 		return ERROR;
 	    case WRITE:
 		switch ( param ) {
@@ -199,6 +203,7 @@ public class Kernel
 	    case CLOSE:   // to be implemented in project
 	    	if((myTcb = scheduler.getMyTcb()) != null ){
 	    		String[] s = (String[])args;
+	    		return fs.close(myTcb.getFtEnt(param));
 	    	}
 	    	return ERROR;
 	    	
@@ -222,12 +227,13 @@ public class Kernel
 	    case FORMAT:  // to be implemented in project
 	    	if((myTcb = scheduler.getMyTcb()) != null ){
 	    		String[] s = (String[])args;
+	    		return fs.format(param);
 	    	}
 	    	return ERROR;
 	    	
 	    case DELETE:  // to be implemented in project
 	    	if((myTcb = scheduler.getMyTcb()) != null ){
-	    		String[] s = (String[])args;
+	    		return fs.delete((String)args);
 	    	}
 	    	return ERROR;
 	    }

@@ -8,11 +8,15 @@ import java.util.Vector;
 public class FileTable {
 
       private Vector<FileTableEntry> table;         				// the actual entity of this file table
-      private Directory dir;        								// the root directory 
+      private Directory dir;   // the root directory
+      private Vector<Inode> inodes;
 
-      public FileTable( Directory directory ) { 					// constructor
+      public FileTable( Directory directory, int numInodes) { 					// constructor
          table = new Vector<FileTableEntry>( );     				// instantiate a file (structure) table
-         dir = directory;           								// receive a reference to the Director
+         dir = directory;          // receive a reference to the Director
+         for (short i = 0; i < numInodes; i++) {
+        	 inodes.add(new Inode(i));
+         }
       }                             								// from the file system
 
       // allocate a new file (structure) table entry for this file name
@@ -28,7 +32,7 @@ public class FileTable {
       	while(true){
       		iNumber = fname.equals("/") ? 0 : dir.namei(fname);		//set inumber to either 0 or the namei of filename
       		if(iNumber >= 0){										//As long as iNumber isn't less than zero, continue
-      			inode = new Inode(iNumber);							//create a new Inode using out zero or higher number
+      			inode = inodes.get(iNumber);							//create a new Inode using out zero or higher number
       			if(mode.compareTo("r") == 0){						//Check to see if we are flagged for read
       				if (inode.flag != 0) {							//If the flag is in use, wait, otherwise break out of loop
       					try {
@@ -81,10 +85,13 @@ public class FileTable {
       // return true if this file table entry found in my table
       public synchronized boolean ffree( FileTableEntry e ) {
     	  if (table.contains(e)) {									//If the table contains the entered Filetableentry
+    		  e.inode.flag=0;
     		  e.inode.toDisk(e.iNumber);							//Write it back to the disk
     		  table.remove(e);										//Remove it from the table
+    		  notifyAll();
     		  return true;											//Return that it sucessfully completed
     	  } else {
+    		  System.err.println("freeing nonexistent FTE");
     		  return false;
     	  }
       }
