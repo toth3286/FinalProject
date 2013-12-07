@@ -26,7 +26,7 @@ class Test5 extends Thread {
       SysLib.cout("Correct behavior of writing a few bytes.........2\n");
     if ( test4( ) ) // close fd
       SysLib.cout("Correct behavior of close.......................2\n");
-    if ( test5( ) ) // read buf[16] from "css430"
+/*    if ( test5( ) ) // read buf[16] from "css430"
       SysLib.cout("Correct behavior of reading a few bytes.........2\n");
     if ( test6( ) ) // append buf[32] to "css430"
       SysLib.cout("Correct behavior of appending a few bytes.......1\n");
@@ -54,7 +54,7 @@ class Test5 extends Thread {
       SysLib.cout("Correct behavior of creating over 40 files ...0.5\n");
     if ( test18( ) ) // "uwb1" read/written among Test5 and Test6
       SysLib.cout("Correct behavior of two fds to the same file..0.5\n");
- 
+ */
     SysLib.cout( "Test completed\n" );
     SysLib.exit( );
   }
@@ -117,9 +117,9 @@ class Test5 extends Thread {
     SysLib.cout( "4: close( fd )....................");
     SysLib.close( fd );
     
-//    SysLib.cerr("Size after close is: " + size + " and fd is: " + fd + "\n");
+    SysLib.cerr("Size after close is: " + size + " and fd is: " + fd + "\n");
     size = SysLib.write( fd, buf16 );
-//    SysLib.cerr("Size after write is: " + size + "\n");
+    SysLib.cerr("Size after write is: " + size + "\n");
     if ( size > 0 ) {
       SysLib.cout( "writable even after closing the file: size " + size + "\n" );
       return false;

@@ -103,7 +103,7 @@ public class FileSystem {
 		System.err.println(bufptr + "  " + buffer.length);
 		do {
 			StringBuffer s = new StringBuffer(100);
-
+ 
 			if(f.seekPtr == f.inode.length && f.seekPtr%Disk.blockSize == 0) {
 
 				addBlock(f.inode);
