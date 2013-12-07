@@ -93,8 +93,8 @@ public class Directory {
       public boolean ifree( short iNumber ) {					// deallocates this inumber (inode number), the corresponding file will be deleted.
     	 assert(nameLen[iNumber] != 0); 						//file exists
     	 nameLen[iNumber] = 0;									//set the length to zero
-    	 names[iNumber] = null;									//change name to null
     	 namesMap.remove(names[iNumber]);						//remove from the map
+    	 names[iNumber] = null;									//change name to null
     	 return true;
       }
 

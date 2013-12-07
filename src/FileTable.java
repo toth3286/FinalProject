@@ -85,6 +85,7 @@ public class FileTable {
       // free this file table entry.
       // return true if this file table entry found in my table
       public synchronized boolean ffree( FileTableEntry e ) {
+    	  //System.err.println(table.toString() + e.toString());
     	  boolean retVal = table.removeElement(e);
     	  if (retVal ==  true) {									//If the table contains the entered Filetableentry
     		  e.inode.flag=0;										//Remove it from the table

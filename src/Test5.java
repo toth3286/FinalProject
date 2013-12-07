@@ -363,7 +363,7 @@ class Test5 extends Thread {
     for ( int i = 0; i < 6656; i++ ) {
       if ( tmpBuf[i] != buf6656[i] ) {
         SysLib.cout( "buf[" + i + "] = " + tmpBuf[i] + " buf6656 = " +
-           buf6656[i] + "\n" );
+           buf6656[i]+ " (wrong)\n" );
         SysLib.close( fd );
         return false;
       }

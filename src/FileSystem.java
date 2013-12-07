@@ -36,8 +36,10 @@ public class FileSystem {
 	public synchronized FileTableEntry open(String fileName, String mode){				//Used to open a file
 		assert(!fileName.equals("/"));
 		short inode = directory.namei(fileName);
+		if (inode == -1 && mode.equals("r"))
+			return null;
 		FileTableEntry ftEnt;
-		if (inode < 0) 							// file doesnt exist
+		if (inode < 0) 							// file doesnt exist and have write permission
 			directory.ialloc(fileName);
 		ftEnt = filetable.falloc(fileName, mode);						//Allocate a new file table entry with the name and the mode
 
@@ -54,48 +56,60 @@ public class FileSystem {
 	
 	public int read(FileTableEntry f, byte[] buffer){
 		synchronized(f.inode) {
-		int bRead = 0;
-		int filelength = f.inode.length;
-		int bufflength = buffer.length;
-		
-		while(bufflength > 0 && f.seekPtr != f.inode.length){
-			int blk = f.inode.findTargetBlock(f.seekPtr);
-			byte[] newblk = new byte[blocksize];
-			
-			SysLib.rawread(blk, newblk);
-			int tmpptr = f.seekPtr % blocksize;
-			int leftToRead = blocksize - tmpptr;
-			int fileresidual = filelength - f.seekPtr;
-			
-			if(bufflength > leftToRead){
-				
-				if(fileresidual > leftToRead){
-					System.arraycopy(newblk, tmpptr, buffer, bRead, leftToRead);
-					bRead += leftToRead;
-					f.seekPtr += leftToRead;
-					bufflength -= leftToRead;
-				}else{
-					System.arraycopy(newblk, tmpptr, buffer, bRead, fileresidual);
-					bRead += fileresidual;
-					f.seekPtr += fileresidual;
-					bufflength -= bufflength;
-				}
-			}else{
-				if(fileresidual > bufflength){
-					System.arraycopy(newblk, tmpptr, buffer, bRead, bufflength);
-					f.seekPtr += bufflength;
-					bRead += bufflength;
-					bufflength -= bufflength;
-				}else{
-					System.arraycopy(newblk, tmpptr, buffer, bRead, fileresidual);
-					f.seekPtr += fileresidual;
-					bRead += fileresidual;
-					bufflength -= bufflength;
-				}
+			int bufptr = 0;
+			// while buffer isn't full or seek pointer hasn't reached end of file
+			while (bufptr != buffer.length && f.seekPtr != f.inode.length) {
+				byte[] inBlk = new byte[512];
+				int offset = f.seekPtr % Disk.blockSize;
+				int readLength = Math.min(Disk.blockSize-offset, buffer.length - bufptr);
+				int curBlk = f.inode.findTargetBlock(f.seekPtr);
+				SysLib.rawread(curBlk, inBlk);
+				System.arraycopy(inBlk, offset, buffer, bufptr, readLength);
+				bufptr += readLength;
+				f.seekPtr+= readLength;
 			}
+			return bufptr;
 		}
-		return bRead;
-		}
+//		int bRead = 0;
+//		int filelength = f.inode.length;
+//		int bufflength = buffer.length;
+//		
+//		while(bufflength > 0 && f.seekPtr != f.inode.length){
+//			int blk = f.inode.findTargetBlock(f.seekPtr);
+//			byte[] newblk = new byte[blocksize];
+//			
+//			SysLib.rawread(blk, newblk);
+//			int tmpptr = f.seekPtr % blocksize;
+//			int leftToRead = blocksize - tmpptr;
+//			int fileresidual = filelength - f.seekPtr;
+//			
+//			if(bufflength > leftToRead){
+//				
+//				if(fileresidual > leftToRead){
+//					System.arraycopy(newblk, tmpptr, buffer, bRead, leftToRead);
+//					bRead += leftToRead;
+//					f.seekPtr += leftToRead;
+//					bufflength -= leftToRead;
+//				}else{
+//					System.arraycopy(newblk, tmpptr, buffer, bRead, fileresidual);
+//					bRead += fileresidual;
+//					f.seekPtr += fileresidual;
+//					bufflength -= bufflength;
+//				}
+//			}else{
+//				if(fileresidual > bufflength){
+//					System.arraycopy(newblk, tmpptr, buffer, bRead, bufflength);
+//					f.seekPtr += bufflength;
+//					bRead += bufflength;
+//					bufflength -= bufflength;
+//				}else{
+//					System.arraycopy(newblk, tmpptr, buffer, bRead, fileresidual);
+//					f.seekPtr += fileresidual;
+//					bRead += fileresidual;
+//					bufflength -= bufflength;
+//				}
+//			}
+//		}
 	}
 	
 	public synchronized int write(FileTableEntry f, byte[] buffer){
@@ -119,7 +133,6 @@ public class FileSystem {
 			bufptr += writeLength;
 			SysLib.rawwrite(curBlk, outBlk);
 		}while(bufptr != buffer.length);
-		
 		return bufptr;
 	}
 	
@@ -150,7 +163,6 @@ public class FileSystem {
 	
 	public synchronized int delete(String filename){			//Delete the filename specified. Waits for transactions to finish first
 		FileTableEntry f = open(filename, "w");
-		f.inode.toDisk(f.iNumber);
 		directory.ifree(f.iNumber);
 		close(f);
 		return 0;

@@ -214,6 +214,8 @@ public class Kernel
 				if((myTcb = scheduler.getMyTcb()) != null){
 					String[] s = (String[])args;
 					FileTableEntry ent = fs.open(s[0], s[1]);
+					if (ent == null)
+						return ERROR;
 					int fd = myTcb.getFd(ent);
 					if (fd == -1) {
 						fs.close(ent);

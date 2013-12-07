@@ -1,3 +1,5 @@
+import java.util.Arrays;
+
   /*	Jay Hennen & Chris Rouse
  * 	SuperBlock.java
  * 	CSS 430 ~ Professor Fukuda
@@ -90,8 +92,8 @@ public class Inode {
     	  byte[] data = new byte[Disk.blockSize];					//Create the buffer
     	  SysLib.rawread(indirect, data);							//Read the indirect data from the disk
     	  short[] ptrs = new short[Disk.blockSize/2];				//create an array of pointers
-    	  for (int i = 0; i < ptrs.length; i+=2) {					//Load the pointers
-    		  ptrs[i] = SysLib.bytes2short(data, i);
+    	  for (int i = 0; i < data.length; i+=2) {					//Load the pointers
+    		  ptrs[i/2] = SysLib.bytes2short(data, i);
     	  }
     	  return ptrs;
       }
@@ -139,10 +141,15 @@ public class Inode {
     		  newIndirect[i] = -1;
     	  }
     	  byte[] b = new byte[Disk.blockSize];
-		  for (int j = 0, k = 0; j < b.length; k++, j+=2) {
+		  for (int j = 0, k = 0; k < newIndirect.length; k++, j+=2) {
 			  SysLib.short2bytes(newIndirect[k], b, j);
 		  }
     	  SysLib.rawwrite(indirect, b);
       }
-      
+      public String toString() {
+    	  String outStr = "l: " + length + " cL " + count + " f: " + flag + "\n";
+    	  outStr += "direct: " + Arrays.toString(direct) + "\n";
+    	  outStr += "indirect: " + Arrays.toString(Arrays.copyOf((indirect != -1) ? getIndirectBlock() : new short[20], 10));
+    	  return outStr;
+      }
    }
