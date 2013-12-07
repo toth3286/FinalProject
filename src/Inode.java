@@ -74,7 +74,7 @@ public class Inode {
        * @return
        */
       public int findTargetBlock(int seekptr){						//Used to find a target block
-    	  if (seekptr >= length)									//If the seeker is greater or equal to length, return false
+    	  if (seekptr > length)									//If the seeker is greater or equal to length, return false
     		  return -1;
     	  int ptr = seekptr/Disk.blockSize;
     	  if (ptr < 11)												//If the seek pointer is within the 11 direct pointers
@@ -96,5 +96,53 @@ public class Inode {
     	  return ptrs;
       }
       
+      public int addBlock(int newBlk) {
+    	  int retVal = addDirectBlock(newBlk);
+    	  if (retVal == -1)
+    		  retVal = addIndirectPtr(newBlk);
+    	  return retVal;
+      }
+      
+      private int addDirectBlock(int newBlk) {
+    	  for (int i = 0; i < direct.length; i++) {
+    		  if (direct[i]==-1) {
+    			  direct[i] = (short)newBlk;
+    			  return newBlk;
+    		  }
+    	  }
+    	  return -1;
+      }
+      
+      private int addIndirectPtr(int newBlk) {
+    	  if (indirect == -1) {
+    		  return -2;
+    	  }
+    	  short[] indirects = getIndirectBlock();
+    	  for (int i = 0; i < indirects.length; i++) {
+    		  if (indirects[i]==-1) {
+    			  indirects[i] = (short)newBlk;
+    			  byte[] b = new byte[Disk.blockSize];
+    			  for (int j = 0, k = 0; j < b.length; k++, j+=2) {
+    				  SysLib.short2bytes(indirects[k], b, j);
+    			  }
+    			  SysLib.rawwrite(indirect, b);
+    			  return newBlk;
+    		  }
+    	  }
+    	  return -1;
+      }
+      
+      public void registerIndirectBlock(int newBlk) {
+    	  indirect = (short)newBlk;
+    	  short[] newIndirect = getIndirectBlock();
+    	  for (int i = 0; i < newIndirect.length; i++) {
+    		  newIndirect[i] = -1;
+    	  }
+    	  byte[] b = new byte[Disk.blockSize];
+		  for (int j = 0, k = 0; j < b.length; k++, j+=2) {
+			  SysLib.short2bytes(newIndirect[k], b, j);
+		  }
+    	  SysLib.rawwrite(indirect, b);
+      }
       
    }

@@ -37,15 +37,16 @@ public class FileSystem {
 		assert(!fileName.equals("/"));
 		short inode = directory.namei(fileName);
 		FileTableEntry ftEnt;
-		if (inode > -1) 							// file exist
+		if (inode < 0) 							// file doesnt exist
 			directory.ialloc(fileName);
 		ftEnt = filetable.falloc(fileName, mode);						//Allocate a new file table entry with the name and the mode
 
 		if(mode.compareTo("w") == 0 || mode.compareTo("w+") == 0){
 			deallocateAllBlocks(ftEnt.inode);
-		}else if(mode.compareTo("a") == 0){
+		} else if(mode.compareTo("a") == 0){
 			ftEnt.seekPtr = ftEnt.inode.length;
-		}else{
+		} else if (mode.compareTo("r") == 0){
+		} else {
 			throw new IllegalArgumentException();
 		}
 		return ftEnt;														//Otherwise retutn the filetableentry
@@ -57,7 +58,7 @@ public class FileSystem {
 		int filelength = f.inode.length;
 		int bufflength = buffer.length;
 		
-		while(bufflength > 0){
+		while(bufflength > 0 && f.seekPtr != f.inode.length){
 			int blk = f.inode.findTargetBlock(f.seekPtr);
 			byte[] newblk = new byte[blocksize];
 			
@@ -98,7 +99,28 @@ public class FileSystem {
 	}
 	
 	public synchronized int write(FileTableEntry f, byte[] buffer){
-		return 0;
+		int bufptr = 0;
+		do {
+			StringBuffer s = new StringBuffer(100);
+			if(f.seekPtr == f.inode.length && f.seekPtr%Disk.blockSize == 0) {
+				System.err.println(f.seekPtr + "  " + f.inode.length);
+				addBlock(f.inode);
+			}
+			byte outBlk[] = new byte[Disk.blockSize];
+			int offset = f.seekPtr%Disk.blockSize;
+			int writeLength = Math.min(Disk.blockSize-offset, buffer.length - bufptr);
+			f.seekPtr+= writeLength;
+			if (f.seekPtr > f.inode.length)
+				f.inode.length += writeLength;
+			int curBlk = f.inode.findTargetBlock(f.seekPtr);
+			//System.err.println(curBlk);
+			SysLib.rawread(curBlk, outBlk);
+			System.arraycopy(buffer, bufptr, outBlk, offset, writeLength);
+			bufptr += writeLength;
+			SysLib.rawwrite(curBlk, outBlk);
+			System.err.println(bufptr + " || " + buffer.length);
+		}while(bufptr != buffer.length);
+		return bufptr;
 	}
 	
 	public synchronized int seek(FileTableEntry fd, int offset, int whence){
@@ -151,6 +173,7 @@ public class FileSystem {
 		int seekptr = inode.length;								//move the seek pointer to the end
 		int blk = inode.findTargetBlock(seekptr);				//Find target seek block
 		while (seekptr > 0) {									//while the seek pointer is larger than zero
+			blk = inode.findTargetBlock(seekptr);				//Find target seek block
 			superblock.returnBlock(blk);						//return the block
 			seekptr -= Disk.blockSize;							//decrement the seek pointer
 		}
@@ -164,4 +187,15 @@ public class FileSystem {
 			inode.direct[i] = -1;
 		}
 	}
+	
+	private int addBlock(Inode inode) {
+		int newBlk = superblock.getFreeBlock();
+		int retVal = inode.addBlock(newBlk);
+		if (retVal == -2) {
+			int newIndirectBlk = superblock.getFreeBlock();
+			inode.registerIndirectBlock(newIndirectBlk);
+			retVal = inode.addBlock(newBlk);
+		}
+		return retVal;
+	}	
 }

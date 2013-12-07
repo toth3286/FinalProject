@@ -14,6 +14,7 @@ public class FileTable {
       public FileTable( Directory directory, int numInodes) { 					// constructor
          table = new Vector<FileTableEntry>( );     				// instantiate a file (structure) table
          dir = directory;          // receive a reference to the Director
+         inodes = new Vector<Inode>();
          for (short i = 0; i < numInodes; i++) {
         	 inodes.add(new Inode(i));
          }
@@ -34,38 +35,38 @@ public class FileTable {
       		if(iNumber >= 0){										//As long as iNumber isn't less than zero, continue
       			inode = inodes.get(iNumber);							//create a new Inode using out zero or higher number
       			if(mode.compareTo("r") == 0){						//Check to see if we are flagged for read
-      				if (inode.flag != 0) {							//If the flag is in use, wait, otherwise break out of loop
+      				if (inode.flag > 0) {							//If the flag is in use, wait, otherwise break out of loop
       					try {
 							wait();
 						} catch (InterruptedException e) { }
-      					break;
       				}
+      				break;
       			} else if(mode.compareTo("w") == 0){				//Check to see if the flag is set to write
-      				if (inode.flag != 0) {							//If in use, wait, otherwise set flag to used and break
+      				if (inode.flag > 0) {							//If in use, wait, otherwise set flag to used and break
       					try {										//so that other writers can't enter
       						wait();
       					} catch (InterruptedException e) { }
-      					inode.flag=1;
-      					break;
       				}
+      				inode.flag=1;
+      				break;
       			} else if (mode.compareTo("w+") == 0) {				//Check to see if the flag is set to read/write
-      				if (inode.flag != 0) {							//If in use, wait, otherwise set flag to used and break
+      				if (inode.flag > 0) {							//If in use, wait, otherwise set flag to used and break
       					try {										//so that other writers can't enter
       						wait();
       					} catch (InterruptedException e) { }
-      					inode.flag=1;
-      					break;
       				}
+      				inode.flag=1;
+      				break;
       			} else if (mode.compareTo("a") == 0) {				//Check to see if the flag is set to append
-      				if (inode.flag != 0) {							//If in use, wait, otherwise set flag to used and break
+      				if (inode.flag > 0) {							//If in use, wait, otherwise set flag to used and break
       					try {										//so that other writers can't enter
       						wait();
       					} catch (InterruptedException e) { }
-      					inode.flag=1;
-      					break;
       				}
+      				inode.flag=1;
+      				break;
       			} else {
-      				
+      				throw new IllegalArgumentException();
       			}
       		}
       	}
