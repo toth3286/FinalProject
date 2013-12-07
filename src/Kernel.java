@@ -165,7 +165,10 @@ public class Kernel
 						return ERROR;
 					if((myTcb = scheduler.getMyTcb()) != null){
 						FileTableEntry fte = myTcb.getFtEnt(param);
-						return fs.read( fte, (byte[])args );
+						if (fte != null)
+							return fs.read( fte, (byte[])args );
+						else 
+							return ERROR;
 					}
 					return ERROR;
 				}
@@ -189,7 +192,10 @@ public class Kernel
 						return ERROR;
 					if((myTcb = scheduler.getMyTcb()) != null){
 						FileTableEntry fte = myTcb.getFtEnt(param);
-						return fs.write( fte, (byte[])args );
+						if (fte!=null)
+							return fs.write( fte, (byte[])args );
+						else
+							return ERROR;
 					}
 					return ERROR;
 				}
@@ -241,8 +247,7 @@ public class Kernel
 				if((myTcb = scheduler.getMyTcb()) != null ){
 					int[] arg = (int[])args;
 					FileTableEntry fte = myTcb.getFtEnt(arg[0]);
-					fs.seek(fte, arg[1], arg[2]);
-					return OK;
+					return fs.seek(fte, arg[1], arg[2]);
 				}
 				return ERROR;
 

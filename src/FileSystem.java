@@ -41,11 +41,11 @@ public class FileSystem {
 			directory.ialloc(fileName);
 		ftEnt = filetable.falloc(fileName, mode);						//Allocate a new file table entry with the name and the mode
 
-		if(mode.compareTo("w") == 0 || mode.compareTo("w+") == 0){
+		if(mode.compareTo("w") == 0){
 			deallocateAllBlocks(ftEnt.inode);
 		} else if(mode.compareTo("a") == 0){
 			ftEnt.seekPtr = ftEnt.inode.length;
-		} else if (mode.compareTo("r") == 0){
+		} else if (mode.compareTo("r") == 0 || mode.compareTo("w+")==0){
 		} else {
 			throw new IllegalArgumentException();
 		}
@@ -99,28 +99,25 @@ public class FileSystem {
 	}
 	
 	public synchronized int write(FileTableEntry f, byte[] buffer){
+		//Instead of adding blocks when necessary, allocate all blocks at start
+		int extra = f.seekPtr + buffer.length - f.inode.length;
+		while(extra > 0) {
+			extra -= Disk.blockSize;
+			addBlock(f.inode);
+		}
 		int bufptr = 0;
-		System.err.println(bufptr + "  " + buffer.length);
 		do {
-			StringBuffer s = new StringBuffer(100);
- 
-			if(f.seekPtr == f.inode.length && f.seekPtr%Disk.blockSize == 0) {
-
-				addBlock(f.inode);
-			}
 			byte outBlk[] = new byte[Disk.blockSize];
 			int offset = f.seekPtr%Disk.blockSize;
 			int writeLength = Math.min(Disk.blockSize-offset, buffer.length - bufptr);
+			int curBlk = f.inode.findTargetBlock(f.seekPtr);
 			f.seekPtr+= writeLength;
 			if (f.seekPtr > f.inode.length)
-				f.inode.length += writeLength;
-			int curBlk = f.inode.findTargetBlock(f.seekPtr);
-//			System.err.println(curBlk);
+				f.inode.length = f.seekPtr;
 			SysLib.rawread(curBlk, outBlk);
 			System.arraycopy(buffer, bufptr, outBlk, offset, writeLength);
 			bufptr += writeLength;
 			SysLib.rawwrite(curBlk, outBlk);
-//			System.err.println(bufptr + " || " + buffer.length);
 		}while(bufptr != buffer.length);
 		
 		return bufptr;
@@ -140,7 +137,8 @@ public class FileSystem {
 			fd.seekPtr = fd.inode.length;
 		if (fd.seekPtr < 0)
 			fd.seekPtr = 0;
-		return 0;
+
+		return fd.seekPtr;
 	}
 	
 	public synchronized int close(FileTableEntry fte){						//Closes the entry pertaining to fd, commits all file transations,
