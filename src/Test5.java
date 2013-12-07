@@ -101,7 +101,9 @@ class Test5 extends Thread {
     SysLib.cout( "3: size = write( fd, buf[16] )...." );
     for ( byte i = 0; i < 16; i++ )
       buf16[i] = i;
+    SysLib.cout("Size before write is: " + size + "\n");
     size = SysLib.write( fd, buf16 );
+    SysLib.cout("Size after write is: " + size + "\n");
     if ( size != 16 ) {
       SysLib.cout( "size = " + size + " (wrong)\n" );
       return false;

@@ -100,7 +100,7 @@ public class FileSystem {
 	
 	public synchronized int write(FileTableEntry f, byte[] buffer){
 		int bufptr = 0;
-		System.err.println(f.seekPtr + "  " + f.inode.length);
+		System.err.println(bufptr + "  " + buffer.length);
 		do {
 			StringBuffer s = new StringBuffer(100);
 
@@ -115,13 +115,14 @@ public class FileSystem {
 			if (f.seekPtr > f.inode.length)
 				f.inode.length += writeLength;
 			int curBlk = f.inode.findTargetBlock(f.seekPtr);
-			//System.err.println(curBlk);
+//			System.err.println(curBlk);
 			SysLib.rawread(curBlk, outBlk);
 			System.arraycopy(buffer, bufptr, outBlk, offset, writeLength);
 			bufptr += writeLength;
 			SysLib.rawwrite(curBlk, outBlk);
 //			System.err.println(bufptr + " || " + buffer.length);
 		}while(bufptr != buffer.length);
+		
 		return bufptr;
 	}
 	
