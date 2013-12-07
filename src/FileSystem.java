@@ -100,10 +100,12 @@ public class FileSystem {
 	
 	public synchronized int write(FileTableEntry f, byte[] buffer){
 		int bufptr = 0;
+		System.err.println(f.seekPtr + "  " + f.inode.length);
 		do {
 			StringBuffer s = new StringBuffer(100);
+
 			if(f.seekPtr == f.inode.length && f.seekPtr%Disk.blockSize == 0) {
-//				System.err.println(f.seekPtr + "  " + f.inode.length);
+
 				addBlock(f.inode);
 			}
 			byte outBlk[] = new byte[Disk.blockSize];
@@ -141,6 +143,7 @@ public class FileSystem {
 	}
 	
 	public synchronized int close(FileTableEntry fte){						//Closes the entry pertaining to fd, commits all file transations,
+		fte.count--;
 		if (fte.count == 0)
 			filetable.ffree(fte);	//unregisters from fd table,
 		return 0;

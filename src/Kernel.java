@@ -185,7 +185,7 @@ public class Kernel
 						break;
 					}
 				} else {
-					if (param > 31 || param < 3)
+					if (param <= 31 || param >= 3)
 						return ERROR;
 					if((myTcb = scheduler.getMyTcb()) != null){
 						FileTableEntry fte = myTcb.getFtEnt(param);
