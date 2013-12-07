@@ -103,7 +103,7 @@ public class FileSystem {
 		do {
 			StringBuffer s = new StringBuffer(100);
 			if(f.seekPtr == f.inode.length && f.seekPtr%Disk.blockSize == 0) {
-				System.err.println(f.seekPtr + "  " + f.inode.length);
+//				System.err.println(f.seekPtr + "  " + f.inode.length);
 				addBlock(f.inode);
 			}
 			byte outBlk[] = new byte[Disk.blockSize];
@@ -118,7 +118,7 @@ public class FileSystem {
 			System.arraycopy(buffer, bufptr, outBlk, offset, writeLength);
 			bufptr += writeLength;
 			SysLib.rawwrite(curBlk, outBlk);
-			System.err.println(bufptr + " || " + buffer.length);
+//			System.err.println(bufptr + " || " + buffer.length);
 		}while(bufptr != buffer.length);
 		return bufptr;
 	}
@@ -141,7 +141,6 @@ public class FileSystem {
 	}
 	
 	public synchronized int close(FileTableEntry fte){						//Closes the entry pertaining to fd, commits all file transations,
-		fte.count--;
 		if (fte.count == 0)
 			filetable.ffree(fte);	//unregisters from fd table,
 		return 0;

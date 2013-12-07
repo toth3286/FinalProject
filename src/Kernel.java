@@ -217,11 +217,17 @@ public class Kernel
 				return ERROR;
 
 			case CLOSE:   // to be implemented in project
-				if((myTcb = scheduler.getMyTcb()) != null ){
-					String[] s = (String[])args;
-					return fs.close(myTcb.getFtEnt(param));
+				if ((myTcb = scheduler.getMyTcb()) != null) {
+					FileTableEntry ent = myTcb.returnFd(param);
+					// his code returns a boolean 
+					if (fs.close(ent) == 0) {
+						return 0;
+					} else {
+						return -1;
+					}
 				}
 				return ERROR;
+
 
 			case SIZE:    // to be implemented in project
 				if((myTcb = scheduler.getMyTcb()) != null ){
