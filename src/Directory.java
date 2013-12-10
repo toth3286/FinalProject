@@ -1,4 +1,4 @@
-/*	Jay Hennen & Chris Rouse
+/*	Coded by: Jay Hennen & Chris Rouse
  * 	SuperBlock.java
  * 	CSS 430 ~ Professor Fukuda
  */

@@ -1,6 +1,6 @@
 import java.util.Arrays;
 
-  /*	Jay Hennen & Chris Rouse
+  /*	Coded by: Jay Hennen & Chris Rouse
  * 	SuperBlock.java
  * 	CSS 430 ~ Professor Fukuda
  */
@@ -98,55 +98,55 @@ public class Inode {
     	  return ptrs;
       }
       
-      public int addBlock(int newBlk) {
-    	  int retVal = addDirectBlock(newBlk);
-    	  if (retVal == -1)
-    		  retVal = addIndirectPtr(newBlk);
+      public int addBlock(int newBlk) {								//Called when we want to add another block
+    	  int retVal = addDirectBlock(newBlk);						//Try to add a direct link block
+    	  if (retVal == -1)											//If direct link fails
+    		  retVal = addIndirectPtr(newBlk);						//Allocate an indirect pointer
     	  return retVal;
       }
       
-      private int addDirectBlock(int newBlk) {
-    	  for (int i = 0; i < direct.length; i++) {
-    		  if (direct[i]==-1) {
-    			  direct[i] = (short)newBlk;
+      private int addDirectBlock(int newBlk) {						//Used to attempt to add a direct link block
+    	  for (int i = 0; i < direct.length; i++) {					//Iterate over the length of the direct link blocks for an empty spot
+    		  if (direct[i]==-1) {									//If the entry is -1
+    			  direct[i] = (short)newBlk;						//Create the block and send back the information on it
     			  return newBlk;
     		  }
     	  }
-    	  return -1;
+    	  return -1;												//If no empty blocks, return -1 to indicate the direct links are full
       }
       
-      private int addIndirectPtr(int newBlk) {
-    	  if (indirect == -1) {
+      private int addIndirectPtr(int newBlk) {						//Used when direct links are full
+    	  if (indirect == -1) {										//If indirect is -1, return -2 to indicate to filesystem that we need to allocate the indirect block
     		  return -2;
     	  }
-    	  short[] indirects = getIndirectBlock();
-    	  for (int i = 0; i < indirects.length; i++) {
-    		  if (indirects[i]==-1) {
-    			  indirects[i] = (short)newBlk;
-    			  byte[] b = new byte[Disk.blockSize];
-    			  for (int j = 0, k = 0; j < b.length; k++, j+=2) {
-    				  SysLib.short2bytes(indirects[k], b, j);
+    	  short[] indirects = getIndirectBlock();					//Set up the array of indirect pointers
+    	  for (int i = 0; i < indirects.length; i++) {				//Iterate over the array
+    		  if (indirects[i]==-1) {								//If we find an empty spot
+    			  indirects[i] = (short)newBlk;						//Allocate it
+    			  byte[] b = new byte[Disk.blockSize];				//Create a new array
+    			  for (int j = 0, k = 0; j < b.length; k++, j+=2) {	//Iterate over j and k to initialize the indirect array so it can be written to disk
+    				  SysLib.short2bytes(indirects[k], b, j);		//Convert above data to bytes in preparation for write
     			  }
-    			  SysLib.rawwrite(indirect, b);
-    			  return newBlk;
+    			  SysLib.rawwrite(indirect, b);						//Write data to disk
+    			  return newBlk;									//Return the new block
     		  }
     	  }
     	  return -1;
       }
       
-      public void registerIndirectBlock(int newBlk) {
-    	  indirect = (short)newBlk;
-    	  short[] newIndirect = getIndirectBlock();
-    	  for (int i = 0; i < newIndirect.length; i++) {
+      public void registerIndirectBlock(int newBlk) {				//Used to register the indirect block
+    	  indirect = (short)newBlk;									//Set indirect to the casted newBlock
+    	  short[] newIndirect = getIndirectBlock();					//Call to get an indirect block
+    	  for (int i = 0; i < newIndirect.length; i++) {			//Iterate through the length of the short array initializing all entries to -1
     		  newIndirect[i] = -1;
     	  }
-    	  byte[] b = new byte[Disk.blockSize];
-		  for (int j = 0, k = 0; k < newIndirect.length; k++, j+=2) {
-			  SysLib.short2bytes(newIndirect[k], b, j);
+    	  byte[] b = new byte[Disk.blockSize];						//Create a buffer array
+		  for (int j = 0, k = 0; k < newIndirect.length; k++, j+=2) {//Prepare the data for writing by iterating over j and k, setting up the index and value
+			  SysLib.short2bytes(newIndirect[k], b, j);				//Convert to bytes for preprocessing of writing to disk
 		  }
-    	  SysLib.rawwrite(indirect, b);
+    	  SysLib.rawwrite(indirect, b);								//Write to the disk
       }
-      public String toString() {
+      public String toString() {									//Used for debugging purposes
     	  String outStr = "l: " + length + " cL " + count + " f: " + flag + "\n";
     	  outStr += "direct: " + Arrays.toString(direct) + "\n";
     	  outStr += "indirect: " + Arrays.toString(Arrays.copyOf((indirect != -1) ? getIndirectBlock() : new short[20], 10));
