@@ -9,8 +9,10 @@ class SuperBlock {
       public int totalBlocks; 													//The number of disk blocks
       public int totalInodes; 													//The number of inodes
       public int freeList;    													//The block number of the free list's head
+      private int diskSize;
       
       public SuperBlock(int diskSize){										    //Constructor for superblock, takes in disk Size
+    	  this.diskSize = diskSize;
     	  byte[] superBlock = new byte[Disk.blockSize];							//Buffer
     	  SysLib.rawread(0, superBlock);										//Read data from disk location
     	  totalBlocks = SysLib.bytes2int(superBlock, 0);						//Read total Blocks from disk
@@ -35,11 +37,14 @@ class SuperBlock {
     	  SysLib.rawwrite(0, superBlock);										//Write buffer to disk
       }
       
-      void format(){
-    	  format(defaultInodeBlocks);											//Call format with defaultInodeBlocks
+      int format(){
+    	  return format(defaultInodeBlocks);											//Call format with defaultInodeBlocks
       }
       
-      void format(int numInodes){												//Used to format the disk and reestablish superblock and freelist
+      int format(int numInodes){												//Used to format the disk and reestablish superblock and freelist
+    	  if (numInodes > diskSize - 1 - numInodes%16) {
+    		  return -1;
+    	  }
     	  byte[] buffer = new byte[Disk.blockSize];								//Create the buffer
     	  SysLib.rawread(0, buffer);											//Read the disk into the buffer
     	  totalInodes = numInodes;												
@@ -61,6 +66,7 @@ class SuperBlock {
     	  }
     	  freeList += (inodeSize * numInodes)/Disk.blockSize + ((inodeSize * numInodes)%Disk.blockSize > 0 ? 1 : 0);
     	  sync();																//Set freelist to the next free node after the Inodes created
+    	  return 0;
       }
       
       public int getFreeBlock(){												//get a freeblock from the head and return it

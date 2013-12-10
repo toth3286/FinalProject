@@ -29,8 +29,7 @@ public class FileSystem {
 		byte[] b = new byte[1000];								//Create a new disk buffer
 		SysLib.int2bytes(diskBlocks, b, 0);						//Convert to bytes
 		SysLib.rawwrite(0, b);									//Write the data to the disk
-		superblock.format(files);								//Call the superblock format function
-		return 0;
+		return superblock.format(files);								//Call the superblock format function
 	}
 	
 	public synchronized FileTableEntry open(String fileName, String mode){//Used to open a file
